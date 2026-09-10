@@ -55,7 +55,7 @@ body,main,.card,.filter-bar{transition:background .25s,border-color .25s,color .
     <div class="logo-sub">H1 FY27 · Abril — Septiembre 2026</div>
   </div>
   <div style="display:flex;align-items:center;gap:14px">
-    <span class="upd">Actualizado: 2026-09-10 16:30</span>
+    <span class="upd">Actualizado: 2026-09-10 13:41</span>
     <button id="theme-btn" onclick="toggleTheme()" title="Modo noche/día">🌙</button>
   </div>
 </header>
@@ -94,7 +94,7 @@ var LABELS=["Abr","May","Jun","Jul","Ago","Sep"];
 var KR31_TGT={"2026-04":3622885,"2026-05":4063503,"2026-06":3888578,"2026-07":3830895,"2026-08":3717243,"2026-09":3908286};
 var KRS=[
   {id:"kr21",squad:"es",peso:7,label:"KR 2.1 - Disminuir cancelación de bookings por falta pago",targets:[22,20,18.25,16.85,15.75,15],inverted:true,
-   fmtA:function(v){return v!==null?v.toFixed(2)+"%":null;},fmtT:function(v){return v+"%";},
+   fmtA:function(v){return v!==null?v.toFixed(2)+"%":null;},fmtT:function(v){return '≤ '+v+'%';},
    getActual:function(i){
      var m=MONTHS[i],rows=DATA.kr21.filter(function(r){return String(r.mes_deadline||"").substring(0,7)===m;});
      if(!rows.length)return null;
@@ -206,7 +206,8 @@ function renderMensual(){
       return m<closed?compliance(a,t,kr.inverted):null;
     });
     var q1=avg([comps[0],comps[1],comps[2]]),q2=avg([comps[3],comps[4],comps[5]]),h1=avg(comps);
-    html+='<tr><td style="text-align:center;font-weight:700;color:#5B21B6;white-space:nowrap;padding:11px 8px">'+krNro(kr.label)+'</td><td class="td-kr">'+krDesc(kr.label)+'</td><td style="text-align:center;font-weight:600;color:var(--muted);white-space:nowrap;padding:11px 6px">'+pesoPM[ki]+'</td>';
+    var invB=kr.inverted?'<span style="font-size:10px;background:#EDE9FE;color:#6D28D9;border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:700;white-space:nowrap">↓ baja</span>':'';
+    html+='<tr><td style="text-align:center;font-weight:700;color:#5B21B6;white-space:nowrap;padding:11px 8px">'+krNro(kr.label)+'</td><td class="td-kr">'+krDesc(kr.label)+invB+'</td><td style="text-align:center;font-weight:600;color:var(--muted);white-space:nowrap;padding:11px 6px">'+pesoPM[ki]+'</td>';
     idxs.forEach(function(i){html+='<td>'+(MONTHS[i]<closed?chip(comps[i]):'-')+'</td>';});
     html+='<td class="td-q">'+chip(q1)+'</td><td class="td-q">'+chip(q2)+'</td><td class="td-q">'+chip(h1)+'</td>';
     html+='</tr>';
@@ -343,7 +344,7 @@ function renderSemanal(){
 
   var SEM_KRS=[
     {label:KRS[0].label,squad:'es',peso:7,fn:acum21,semFn:sem21,
-     tgtFn:function(w){var mi=mIdx(semMes(w));return mi>=0?KRS[0].targets[mi]+'%':null;}},
+     tgtFn:function(w){var mi=mIdx(semMes(w));return mi>=0?'≤ '+KRS[0].targets[mi]+'%':null;}},
     {label:KRS[1].label,squad:'es',peso:13,fn:acum22,semFn:sem22,
      tgtFn:function(w){var mi=mIdx(semMes(w));return mi>=0?KRS[1].targets[mi].toLocaleString('es-AR')+' ag.':null;}},
     {label:KRS[2].label,squad:'ce',peso:16,fn:acum31,semFn:sem31,
@@ -459,7 +460,7 @@ function renderProgreso(){
     var comp=compliance(a,t,kr.inverted);
     var delta='—',deltaColor='var(--muted)';
     if(a!==null&&t!==null){
-      var diff=a-t;
+      var diff=kr.inverted?(t-a):(a-t);
       var fmtSample=kr.fmtA(1)||'';
       if(fmtSample.indexOf('%')>=0){
         delta=(diff>=0?'+':'')+diff.toFixed(2)+'pp';
@@ -472,7 +473,8 @@ function renderProgreso(){
       deltaColor=isGood?'#16a34a':'#cf222e';
     }
     html+='<tr>';
-    html+='<td style="text-align:center;font-weight:700;color:#5B21B6;white-space:nowrap;padding:11px 8px">'+krNro(kr.label)+'</td><td class="td-kr">'+krDesc(kr.label)+'</td><td style="text-align:center;font-weight:600;color:var(--muted);white-space:nowrap;padding:11px 6px">'+pesoPP[ki]+'</td>';
+    var invBp=kr.inverted?'<span style="font-size:10px;background:#EDE9FE;color:#6D28D9;border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:700;white-space:nowrap">↓ baja</span>':'';
+    html+='<td style="text-align:center;font-weight:700;color:#5B21B6;white-space:nowrap;padding:11px 8px">'+krNro(kr.label)+'</td><td class="td-kr">'+krDesc(kr.label)+invBp+'</td><td style="text-align:center;font-weight:600;color:var(--muted);white-space:nowrap;padding:11px 6px">'+pesoPP[ki]+'</td>';
     html+='<td style="font-weight:700">'+(a!==null?kr.fmtA(a):'<span class="chip na">N/D</span>')+'</td>';
     html+='<td>'+(t!==null?kr.fmtT(t):'<span class="chip na">N/A</span>')+'</td>';
     html+='<td>'+chip(comp)+'</td>';
@@ -490,7 +492,8 @@ function renderProgreso(){
     var barColor=comp!==null?(comp>=100?'#22c55e':comp>=80?'#eab308':'#ef4444'):'#ddd';
     html+='<div class="card" style="padding:16px 20px;margin-bottom:8px">';
     html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-    html+='<span style="font-weight:700;color:#5B21B6;font-size:12px;margin-right:8px">'+krNro(kr.label)+'</span><span style="font-weight:600;font-size:13px">'+krDesc(kr.label)+'</span>';
+    var invBb=kr.inverted?'<span style="font-size:10px;background:#EDE9FE;color:#6D28D9;border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:700;white-space:nowrap">↓ baja</span>':'';
+    html+='<span style="font-weight:700;color:#5B21B6;font-size:12px;margin-right:8px">'+krNro(kr.label)+'</span><span style="font-weight:600;font-size:13px">'+krDesc(kr.label)+invBb+'</span>';
     html+='<span style="font-size:13px">'+(a!==null?kr.fmtA(a)+' / '+(t!==null?kr.fmtT(t):'?'):'N/D')+'&nbsp;&nbsp;'+chip(comp)+'</span>';
     html+='</div>';
     html+='<div style="background:#f0f0f0;border-radius:6px;height:10px">';
