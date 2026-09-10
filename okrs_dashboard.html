@@ -55,7 +55,7 @@ body,main,.card,.filter-bar{transition:background .25s,border-color .25s,color .
     <div class="logo-sub">H1 FY27 · Abril — Septiembre 2026</div>
   </div>
   <div style="display:flex;align-items:center;gap:14px">
-    <span class="upd">Actualizado: 2026-09-10 13:29</span>
+    <span class="upd">Actualizado: 2026-09-10 16:30</span>
     <button id="theme-btn" onclick="toggleTheme()" title="Modo noche/día">🌙</button>
   </div>
 </header>
@@ -459,7 +459,7 @@ function renderProgreso(){
     var comp=compliance(a,t,kr.inverted);
     var delta='—',deltaColor='var(--muted)';
     if(a!==null&&t!==null){
-      var diff=kr.inverted?(t-a):(a-t);
+      var diff=a-t;
       var fmtSample=kr.fmtA(1)||'';
       if(fmtSample.indexOf('%')>=0){
         delta=(diff>=0?'+':'')+diff.toFixed(2)+'pp';
